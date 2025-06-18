@@ -51,30 +51,49 @@ function App() {
     const day = currentTime.getDay();
     const date = currentTime.getDate();
     
-    // Base percentage influenced by time of day
-    let basePercentage = 50;
+    // Start with a lower base percentage for more realistic outcomes
+    let basePercentage = 30;
     
     // Adjust based on hour (some signs are luckier at certain times)
-    if (hour >= 6 && hour < 12) basePercentage += 10; // Morning bonus
-    if (hour >= 12 && hour < 18) basePercentage += 5;  // Afternoon bonus
-    if (hour >= 18 && hour < 24) basePercentage += 15; // Evening bonus
+    if (hour >= 6 && hour < 12) basePercentage += 8; // Morning bonus
+    if (hour >= 12 && hour < 18) basePercentage += 3;  // Afternoon bonus
+    if (hour >= 18 && hour < 24) basePercentage += 12; // Evening bonus
+    if (hour >= 0 && hour < 6) basePercentage -= 5; // Night penalty
     
     // Adjust based on day of week
-    if (day === 0 || day === 6) basePercentage += 5; // Weekend bonus
+    if (day === 0 || day === 6) basePercentage += 3; // Weekend bonus
+    if (day === 1) basePercentage -= 2; // Monday penalty
     
     // Adjust based on date (odd/even)
-    if (date % 2 === 0) basePercentage += 5; // Even date bonus
+    if (date % 2 === 0) basePercentage += 2; // Even date bonus
+    if (date === 13) basePercentage -= 8; // Friday 13th penalty
     
-    // Element-based adjustments
+    // Element-based adjustments (more varied)
     switch(sign.element) {
-      case 'Fire': basePercentage += 10; break;
-      case 'Water': basePercentage += 5; break;
-      case 'Air': basePercentage += 8; break;
-      case 'Earth': basePercentage += 7; break;
+      case 'Fire': basePercentage += 8; break;
+      case 'Water': basePercentage += 2; break;
+      case 'Air': basePercentage += 5; break;
+      case 'Earth': basePercentage += 3; break;
     }
     
-    // Random factor (-10 to +10)
-    const randomFactor = Math.floor(Math.random() * 21) - 10;
+    // Zodiac-specific adjustments for more variety
+    switch(sign.name) {
+      case 'Aries': basePercentage += (hour >= 6 && hour < 12) ? 5 : -2; break; // Morning warriors
+      case 'Taurus': basePercentage += (day >= 1 && day <= 5) ? 3 : -1; break; // Weekday workers
+      case 'Gemini': basePercentage += (hour >= 12 && hour < 18) ? 4 : 0; break; // Afternoon social
+      case 'Cancer': basePercentage += (hour >= 18 && hour < 24) ? 6 : -3; break; // Evening emotional
+      case 'Leo': basePercentage += 5; break; // Generally lucky
+      case 'Virgo': basePercentage += (date % 2 === 0) ? 4 : -2; break; // Even date preference
+      case 'Libra': basePercentage += (day === 5 || day === 6) ? 4 : 0; break; // Weekend lovers
+      case 'Scorpio': basePercentage += (hour >= 20 && hour < 24) ? 7 : -1; break; // Night owls
+      case 'Sagittarius': basePercentage += 3; break; // Optimistic
+      case 'Capricorn': basePercentage += (day >= 1 && day <= 5) ? 4 : -2; break; // Work ethic
+      case 'Aquarius': basePercentage += (hour >= 0 && hour < 6) ? 6 : 1; break; // Night thinkers
+      case 'Pisces': basePercentage += (hour >= 18 && hour < 24) ? 5 : -1; break; // Evening dreamers
+    }
+    
+    // Random factor (-15 to +15) for more unpredictability
+    const randomFactor = Math.floor(Math.random() * 31) - 15;
     basePercentage += randomFactor;
     
     // Ensure percentage stays within 0-100
@@ -95,16 +114,23 @@ function App() {
           luck: "high",
           percentage
         };
-      } else if (percentage >= 40) {
+      } else if (percentage >= 50) {
         fortune = {
-          message: "A balanced cosmic energy surrounds your bet. Proceed with caution.",
+          message: "A balanced cosmic energy surrounds your bet. Proceed with moderate confidence.",
           emoji: "⚖️",
+          luck: "medium",
+          percentage
+        };
+      } else if (percentage >= 30) {
+        fortune = {
+          message: "The cosmic energy is mixed. Consider your bet carefully today.",
+          emoji: "🌙",
           luck: "medium",
           percentage
         };
       } else {
         fortune = {
-          message: "The stars suggest reconsidering your bet today.",
+          message: "The stars suggest reconsidering your bet today. Better luck tomorrow!",
           emoji: "🌠",
           luck: "low",
           percentage
@@ -123,7 +149,8 @@ function App() {
 
   const getPercentageColor = (percentage: number) => {
     if (percentage >= 70) return 'text-green-600';
-    if (percentage >= 40) return 'text-yellow-600';
+    if (percentage >= 50) return 'text-yellow-600';
+    if (percentage >= 30) return 'text-orange-600';
     return 'text-red-600';
   };
 
